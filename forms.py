@@ -7,3 +7,9 @@ class AgentForm(FlaskForm):
     agent_phone = StringField('Phone', validators=[DataRequired(), Length(max=50)])
     agent_email = StringField('Email', validators=[Length(max=50)])
     submit = SubmitField('Save')
+
+class ClientForm(FlaskForm):
+    client_name = StringField('Name', validators=[DataRequired(), Length(max=50)])
+    client_phone = StringField('Phone', validators=[DataRequired(), Length(max=50)])
+    client_email = StringField('Email', validators=[Length(max=50)])
+    submit = SubmitField('Save')

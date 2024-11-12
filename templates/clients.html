@@ -1,0 +1,83 @@
+{% block content %}
+    <h1>Clients</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.client_name.label }} {{ form.client_name() }}<br>
+        {{ form.client_phone.label }} {{ form.client_phone() }}<br>
+        {{ form.client_email.label }} {{ form.client_email() }}<br>
+        {{ form.submit() }}
+    </form>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        {% for client in clients %}
+        <tr id="row-{{ client.client_id }}">
+            <td><span class="text" id="name-{{ client.client_id }}">{{ client.client_name }}</span>
+                <input class="edit-field" type="text" id="input-name-{{ client.client_id }}" value="{{ client.client_name }}" style="display:none;"></td>
+            <td><span class="text" id="phone-{{ client.client_id }}">{{ client.client_phone }}</span>
+                <input class="edit-field" type="text" id="input-phone-{{ client.client_id }}" value="{{ client.client_phone }}" style="display:none;"></td>
+            <td><span class="text" id="email-{{ client.client_id }}">{{ client.client_email }}</span>
+                <input class="edit-field" type="text" id="input-email-{{ client.client_id }}" value="{{ client.client_email }}" style="display:none;"></td>
+            <td>
+                <button onclick="enableEdit({{ client.client_id }})" id="edit-button-{{ client.client_id }}">Edit</button>
+                <button onclick="saveChanges({{ client.client_id }})" id="save-button-{{ client.client_id }}" style="display:none;">Save</button>
+                <a href="{{ url_for('delete_client', id=client.client_id) }}">X</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function enableEdit(clientId) {
+            document.getElementById(`name-${clientId}`).style.display = 'none';
+            document.getElementById(`phone-${clientId}`).style.display = 'none';
+            document.getElementById(`email-${clientId}`).style.display = 'none';
+
+            document.getElementById(`input-name-${clientId}`).style.display = 'inline';
+            document.getElementById(`input-phone-${clientId}`).style.display = 'inline';
+            document.getElementById(`input-email-${clientId}`).style.display = 'inline';
+
+            document.getElementById(`edit-button-${clientId}`).style.display = 'none';
+            document.getElementById(`save-button-${clientId}`).style.display = 'inline';
+        }
+
+        function saveChanges(clientId) {
+            const updatedName = document.getElementById(`input-name-${clientId}`).value;
+            const updatedPhone = document.getElementById(`input-phone-${clientId}`).value;
+            const updatedEmail = document.getElementById(`input-email-${clientId}`).value;
+
+            if (!updatedName) {
+                alert("Name cannot be empty.");
+                return;
+            }
+            if (!updatedPhone) {
+                alert("Phone cannot be empty.");
+                return;
+            }
+            
+            fetch(`/update_client/${clientId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ form.csrf_token._value() }}'
+                },
+                body: JSON.stringify({
+                    client_name: updatedName,
+                    client_phone: updatedPhone,
+                    client_email: updatedEmail
+                })
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Failed to save changes.");
+                }
+            });
+        }
+    </script>
+{% endblock %}
