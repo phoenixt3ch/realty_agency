@@ -1,0 +1,30 @@
+{% block content %}
+    <h1>Agents</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.agent_name.label }} {{ form.agent_name() }}<br>
+        {{ form.agent_phone.label }} {{ form.agent_phone() }}<br>
+        {{ form.agent_email.label }} {{ form.agent_email() }}<br>
+        {{ form.submit() }}
+    </form>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        {% for agent in agents %}
+        <tr>
+            <td>{{ agent.agent_name }}</td>
+            <td>{{ agent.agent_phone }}</td>
+            <td>{{ agent.agent_email }}</td>
+            <td>
+                <a>Edit</a>
+                <a>Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
