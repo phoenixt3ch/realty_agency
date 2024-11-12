@@ -16,15 +16,68 @@
             <th>Actions</th>
         </tr>
         {% for agent in agents %}
-        <tr>
-            <td>{{ agent.agent_name }}</td>
-            <td>{{ agent.agent_phone }}</td>
-            <td>{{ agent.agent_email }}</td>
+        <tr id="row-{{ agent.agent_id }}">
+            <td><span class="text" id="name-{{ agent.agent_id }}">{{ agent.agent_name }}</span>
+                <input class="edit-field" type="text" id="input-name-{{ agent.agent_id }}" value="{{ agent.agent_name }}" style="display:none;"></td>
+            <td><span class="text" id="phone-{{ agent.agent_id }}">{{ agent.agent_phone }}</span>
+                <input class="edit-field" type="text" id="input-phone-{{ agent.agent_id }}" value="{{ agent.agent_phone }}" style="display:none;"></td>
+            <td><span class="text" id="email-{{ agent.agent_id }}">{{ agent.agent_email }}</span>
+                <input class="edit-field" type="text" id="input-email-{{ agent.agent_id }}" value="{{ agent.agent_email }}" style="display:none;"></td>
             <td>
-                <a>Edit</a>
-                <a>Delete</a>
+                <button onclick="enableEdit({{ agent.agent_id }})" id="edit-button-{{ agent.agent_id }}">Edit</button>
+                <button onclick="saveChanges({{ agent.agent_id }})" id="save-button-{{ agent.agent_id }}" style="display:none;">Save</button>
+                <a href="{{ url_for('delete_agent', id=agent.agent_id) }}">X</button>
             </td>
         </tr>
         {% endfor %}
     </table>
+
+    <script>
+        function enableEdit(agentId) {
+            document.getElementById(`name-${agentId}`).style.display = 'none';
+            document.getElementById(`phone-${agentId}`).style.display = 'none';
+            document.getElementById(`email-${agentId}`).style.display = 'none';
+
+            document.getElementById(`input-name-${agentId}`).style.display = 'inline';
+            document.getElementById(`input-phone-${agentId}`).style.display = 'inline';
+            document.getElementById(`input-email-${agentId}`).style.display = 'inline';
+
+            document.getElementById(`edit-button-${agentId}`).style.display = 'none';
+            document.getElementById(`save-button-${agentId}`).style.display = 'inline';
+        }
+
+        function saveChanges(agentId) {
+            const updatedName = document.getElementById(`input-name-${agentId}`).value;
+            const updatedPhone = document.getElementById(`input-phone-${agentId}`).value;
+            const updatedEmail = document.getElementById(`input-email-${agentId}`).value;
+
+            if (!updatedName) {
+                alert("Name cannot be empty.");
+                return;
+            }
+            if (!updatedPhone) {
+                alert("Phone cannot be empty.");
+                return;
+            }
+            
+            fetch(`/update_agent/${agentId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ form.csrf_token._value() }}'
+                },
+                body: JSON.stringify({
+                    agent_name: updatedName,
+                    agent_phone: updatedPhone,
+                    agent_email: updatedEmail
+                })
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Failed to save changes.");
+                }
+            });
+        }
+    </script>
 {% endblock %}
