@@ -20,7 +20,7 @@ class Realty(db.Model):
     __tablename__ = 'Realty'
     realty_id = db.Column(db.Integer, primary_key=True)
     realty_address = db.Column(db.String(50), nullable=False)
-    realty_square = db.Column(db.Integer, nullable=False)
+    realty_square = db.Column(db.Float, nullable=False)
 
 class Rent(db.Model):
     __tablename__ = 'Rent'
