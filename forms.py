@@ -15,7 +15,7 @@ class ClientForm(FlaskForm):
     submit = SubmitField('Save')
 
 class RealtyForm(FlaskForm):
-    realty_name = StringField('Address', validators=[DataRequired(), Length(max=50)])
+    realty_address = StringField('Address', validators=[DataRequired(), Length(max=50)])
     realty_square = FloatField('Square', validators=[DataRequired(), NumberRange(min=1)])
     submit = SubmitField('Save')
 

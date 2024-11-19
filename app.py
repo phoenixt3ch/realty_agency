@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, jsonify
 from config import Config
-from models import db, Agent, Client
-from forms import AgentForm, ClientForm
+from models import db, Agent, Client, Realty
+from forms import AgentForm, ClientForm, RealtyForm
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -76,6 +76,39 @@ def delete_client(id):
     db.session.delete(client)
     db.session.commit()
     return redirect(url_for('clients'))
+
+@app.route('/realty', methods=['GET', 'POST'])
+def realty():
+    form = RealtyForm()
+    if form.validate_on_submit():
+        new_realty = Realty(
+            realty_address=form.realty_address.data,
+            realty_square=form.realty_square.data
+        )
+        db.session.add(new_realty)
+        db.session.commit()
+        return redirect(url_for('realty'))
+
+    realties = Realty.query.all()
+    return render_template('realty.html', form=form, realties=realties)
+
+
+@app.route('/update_realty/<int:realty_id>', methods=['POST'])
+def update_realty(realty_id):
+    data = request.get_json()
+    realty = Realty.query.get_or_404(realty_id)
+    realty.realty_address = data['realty_address']
+    realty.realty_square = int(data['realty_square'])
+
+    db.session.commit()
+    return jsonify({'status': 'success'})
+
+@app.route('/delete_realty/<int:realty_id>', methods=['POST'])
+def delete_realty(realty_id):
+    realty = Realty.query.get_or_404(realty_id)
+    db.session.delete(realty)
+    db.session.commit()
+    return redirect(url_for('realty'))
 
 if __name__ == '__main__':
     app.run(debug=True)

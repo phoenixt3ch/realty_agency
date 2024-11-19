@@ -1,0 +1,105 @@
+{% block content %}
+    <h1>Realty</h1>
+
+    <!-- Форма для добавления новой недвижимости -->
+    <h2>Add Realty</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.realty_address.label }} {{ form.realty_address() }}<br>
+        {{ form.realty_square.label }} {{ form.realty_square() }}<br>
+        {{ form.submit() }}
+    </form>
+
+    <!-- Таблица для отображения существующих записей недвижимости -->
+    <h2>Existing Realty</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Address</th>
+                <th>Square</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for realty in realties %}
+            <tr id="row-{{ realty.realty_id }}">
+                <td>{{ realty.realty_id }}</td>
+                <td>
+                    <span class="text" id="address-{{ realty.realty_id }}">{{ realty.realty_address }}</span>
+                    <input type="text" class="edit-field" id="input-address-{{ realty.realty_id }}" value="{{ realty.realty_address }}" style="display:none;">
+                </td>
+                <td>
+                    <span class="text" id="square-{{ realty.realty_id }}">{{ realty.realty_square }}</span>
+                    <input type="number" class="edit-field" id="input-square-{{ realty.realty_id }}" value="{{ realty.realty_square }}" style="display:none;">
+                </td>
+                <td>
+                    <button onclick="enableEdit({{ realty.realty_id }})" id="edit-button-{{ realty.realty_id }}">Edit</button>
+                    <button onclick="saveChanges({{ realty.realty_id }})" id="save-button-{{ realty.realty_id }}" style="display:none;">Save</button>
+                    <button onclick="deleteRealty({{ realty.realty_id }})" class="delete-button">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function enableEdit(realtyId) {
+            document.getElementById(`address-${realtyId}`).style.display = 'none';
+            document.getElementById(`square-${realtyId}`).style.display = 'none';
+
+            document.getElementById(`input-address-${realtyId}`).style.display = 'inline';
+            document.getElementById(`input-square-${realtyId}`).style.display = 'inline';
+
+            document.getElementById(`edit-button-${realtyId}`).style.display = 'none';
+            document.getElementById(`save-button-${realtyId}`).style.display = 'inline';
+        }
+
+        function saveChanges(realtyId) {
+            const updatedAddress = document.getElementById(`input-address-${realtyId}`).value.trim();
+            const updatedSquare = document.getElementById(`input-square-${realtyId}`).value.trim();
+
+            if (!updatedAddress) {
+                alert("Address cannot be empty.");
+                return;
+            }
+            if (!updatedSquare || isNaN(updatedSquare) || parseInt(updatedSquare) <= 0) {
+                alert("Square must be a positive number.");
+                return;
+            }
+
+            fetch(`/update_realty/${realtyId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ form.csrf_token._value() }}'
+                },
+                body: JSON.stringify({
+                    realty_address: updatedAddress,
+                    realty_square: updatedSquare
+                })
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Failed to save changes.");
+                }
+            });
+        }
+
+        function deleteRealty(realtyId) {
+            fetch(`/delete_realty/${realtyId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ form.csrf_token._value() }}'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert("Failed to delete realty.");
+                }
+            });
+        }
+    </script>
+{% endblock %}
