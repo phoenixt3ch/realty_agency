@@ -73,20 +73,7 @@
                 })
             }).then(response => {
                 if (response.ok) {
-                    document.getElementById(`name-${agentId}`).textContent = updatedName;
-                    document.getElementById(`phone-${agentId}`).textContent = updatedPhone;
-                    document.getElementById(`email-${agentId}`).textContent = updatedEmail;
-
-                    document.getElementById(`name-${agentId}`).style.display = 'inline';
-                    document.getElementById(`phone-${agentId}`).style.display = 'inline';
-                    document.getElementById(`email-${agentId}`).style.display = 'inline';
-
-                    document.getElementById(`input-name-${agentId}`).style.display = 'none';
-                    document.getElementById(`input-phone-${agentId}`).style.display = 'none';
-                    document.getElementById(`input-email-${agentId}`).style.display = 'none';
-
-                    document.getElementById(`edit-button-${agentId}`).style.display = 'inline';
-                    document.getElementById(`save-button-${agentId}`).style.display = 'none';
+                    location.reload();
                 } else {
                     alert("Failed to save changes.");
                 }
